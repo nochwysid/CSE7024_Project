@@ -11,19 +11,11 @@ https://www.geeksforgeeks.org/create-simple-blockchain-using-python/
 Extended and modified from BlockchainML_v0.py to suit only custom frameworks
 '''
 # Python program to create Blockchain
- 
-# For timestamp
+
 import datetime
- 
-# Calculating the hash in order to add digital fingerprints to the blocks
 import hashlib
- 
-# To store data in our blockchain
 import JSON
- 
-# Flask is for creating the web app and jsonify is for displaying the blockchain
 from flask import Flask, jsonify
- 
 
 class Layer:
     def __init__(self, neuroncount, neurontype, connectivity, activation, dact):
@@ -47,7 +39,6 @@ class DataSet: # not included in blockchain, this class exists only to service t
         self.datadict = datadict # contains the actual data
         self.inputdim = inputdim
         self.outputdim = outputdim    
-
 
 class ModelContainer:
     def __init__(self):
@@ -89,7 +80,6 @@ class ModelContainer:
         self.signature = sig.toDER('hex')
         #encoded_model = JSON.dumps(modelstuff, sort_keys=True).encode()
         #return hashlib.sha256(encoded_block).hexdigest()
-
 
 class Blockchain:
    
@@ -188,8 +178,7 @@ def mine_block():
         return jsonify(response), 200
     else:
         previous_block.data.append(ownModel)
-     
- 
+      
 # Display blockchain in JSON format
 @app.route('/get_chain', methods=['GET'])
 def display_chain():
