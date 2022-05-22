@@ -14,7 +14,7 @@ Extended and modified from BlockchainML_v0.py to suit only custom frameworks
 
 import datetime
 import hashlib
-import JSON
+import json
 from flask import Flask, jsonify
 
 class Layer:
