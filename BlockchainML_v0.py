@@ -158,7 +158,8 @@ class Blockchain:
             return self.chain
     
 # Creating the Web App using Flask
-app = Flask(__name__, template_folder='/home/Strontium/Desktop/SubDeskTopSees/CSE7024_-_BC/')
+pathstub = '</your/path/here/>' #don't forget to change to appropriate path
+app = Flask(__name__, template_folder=pathstub)
  
 # Create an instance of the class Blockchain
 blockchain = Blockchain(numModels=5,modSizeLim=200)
