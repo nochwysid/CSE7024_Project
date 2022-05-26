@@ -38,7 +38,7 @@ import datetime
 import hashlib
  
 # Flask is for creating the web app and jsonify is for displaying the blockchain
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
  
 # To store data in our blockchain
 import json
@@ -92,7 +92,7 @@ class Blockchain:
     # This function creates the very first block and sets its hash to "0"
     def __init__(self, numModels, modSizeLim):
         self.chain = []
-        self.create_block(ckpt=1, previous_hash='0', data={})#Genesis block
+        self.create_block(ckpt=1, previous_hash='0', data=[])#Genesis block
         self.numModels = numModels
         self.modSizeLim = modSizeLim
  
@@ -112,11 +112,12 @@ class Blockchain:
        
     # This PoW needs to be modified to suit the application
     def checkpoint(self, previous_ckpt):
-        new_ckpt = str(self.data)
+        this_block = self.chain[-1]
+        new_ckpt = str(this_block['data'])
          
         # while check_proof is False:
-        hash_operation = hashlib.sha256(
-            str(new_ckpt**2 - previous_ckpt**2).encode()).hexdigest()
+        hash_operation = hashlib.sha256(new_ckpt.encode()).hexdigest()
+            #str(new_ckpt**2 - previous_ckpt**2).encode()).hexdigest()
 
         return hash_operation
  
@@ -130,11 +131,11 @@ class Blockchain:
             if block['previous_hash'] != self.hash(previous_block):
                 return False
                
-            previous_ckpt = previous_block['ckpt']
-            ckpt = block['ckpt']
-            #ckpt = self.checkpoint(previous_ckpt)
-            hash_operation = hashlib.sha256(
-                str(ckpt**2 - previous_ckpt**2).encode()).hexdigest()#str(proof**2 - previous_proof**2).encode()).hexdigest()
+            # previous_ckpt = previous_block['ckpt']
+            # ckpt = block['ckpt']
+            # #ckpt = self.checkpoint(previous_ckpt)
+            # hash_operation = hashlib.sha256(
+            #     str(ckpt**2 - previous_ckpt**2).encode()).hexdigest()#str(proof**2 - previous_proof**2).encode()).hexdigest()
              
             previous_block = block
             block_index += 1
@@ -157,7 +158,7 @@ class Blockchain:
             return self.chain
     
 # Creating the Web App using Flask
-app = Flask(__name__)
+app = Flask(__name__, template_folder='/home/Strontium/Desktop/SubDeskTopSees/CSE7024_-_BC/')
  
 # Create an instance of the class Blockchain
 blockchain = Blockchain(numModels=5,modSizeLim=200)
@@ -167,12 +168,21 @@ blockchain = Blockchain(numModels=5,modSizeLim=200)
 def mine_block():
     ''' need to check that nothing in 'data' that is not an instance of ModelContainer class and that no 
         more than 5 ModelContainers in data '''
+    modelParams = {}
+    modelReadMe = """ """
+    encoded_model = str([item for item in modelParams]) + modelReadMe
+    modelHash = hashlib.sha256(encoded_model.encode()).hexdigest()
+    key = 'this is a temporary key, like lorem ipsum'
+    modelSignatures = hashlib.sha256(key.encode()).hexdigest()
+    # data is an object, not a list or dict
+    modcon = ModelContainer(modelParams, modelReadMe, modelHash, modelSignatures)
+
     previous_block = blockchain.print_previous_block()
     previous_ckpt = previous_block['ckpt']
     ckpt = blockchain.checkpoint(previous_ckpt)
     previous_hash = blockchain.hash(previous_block)
-    if (len(previous_block.data) > 5):
-        block = blockchain.create_block(ckpt, previous_hash)
+    if (len(previous_block['data']) > 5):
+        block = blockchain.create_block(ckpt, previous_hash, data=[modcon])
      
         response = {'message': 'A block is MINED',
                     'index': block['index'],
@@ -181,15 +191,21 @@ def mine_block():
                     'previous_hash': block['previous_hash']}
         return jsonify(response), 200
     else:
-        # previous_block.data.append(ownModel)
-        pass
+        previous_block['data'].append(modcon)
+        # bidx is the index of the block in the chain
+        # cidx is the index of the modelcontainer in the data
+        bidx, cidx = str(previous_block['index']), str(len(previous_block['data'])-1)
+        #response = {'message': 'Model added at block '+block['index']+'container '+len(previous_block['data']-1)}
+        response = {'message': 'Model added at block ' + bidx + ' container '+ cidx}
+        return jsonify(response), 200
+    #pass
      
  
 # Display blockchain in JSON format
 @app.route('/get_chain', methods=['GET'])
 def display_chain():
-    response = {'chain': blockchain.chain,
-                'length': len(blockchain.chain)}
+    response = {"<h1>chain</h1>": blockchain.chain,
+                "length": len(blockchain.chain)}
     return jsonify(response), 200
  
 # Check validity of the blockchain
@@ -203,6 +219,10 @@ def valid():
         response = {'message': 'The Blockchain is not valid.'}
     return jsonify(response), 200
  
- 
+@app.route('/tester', methods=['GET'])
+def tester():
+    return render_template('CSE_7024_BC_Page.html')
+
+
 # Run the Flask server locally
 app.run(host='127.0.0.1', port=5000)
