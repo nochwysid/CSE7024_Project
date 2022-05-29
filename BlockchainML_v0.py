@@ -36,13 +36,17 @@ import datetime
  
 # Calculating the hash in order to add digital fingerprints to the blocks
 import hashlib
- 
+from hashlib import blake2b
+from hmac import compare_digest
+
 # Flask is for creating the web app and jsonify is for displaying the blockchain
 from flask import Flask, jsonify, render_template, request
  
 # To store data in our blockchain
 import json
  
+SECRET_KEY = b'pseudorandomly generated server secret key'
+AUTH_SIZE = 16 
 
 class ModelContainer:
     ''' Intended to support only established frameworks such as PyTorch or TensorFlow. See version 1 
@@ -52,6 +56,7 @@ class ModelContainer:
         self.modelReadMe = modelReadMe
         self.modelHash = modelHash # to identify the model
         self.modelSignatures = modelSignatures # to verify integrity, etc.
+        self.topscore = 0.0
 
     def getParams(self):
         for item in self.modelParams:# everything needed to instantiate and run a model
@@ -66,7 +71,12 @@ class ModelContainer:
         
         tmp = self.modelParams
         exec(tmp)
-        
+        #with open('score.txt',r)
+        f = open("score.txt", "r")
+        self.topscore = float(f.readline())
+        f.close()
+        #self.topscore = exec(tmp)
+        print('top score:',self.topscore)
         ''' alternatively,  fname = self.modelParams['title']
                             exec(open(fname).read())'''
         ''' Maybe need to use IPC or something to run evaluation, i.e. Tensorflow or PyTorch or custom 
@@ -88,6 +98,21 @@ class ModelContainer:
         self.modelSignatures.append(sig.toDER('hex'))
         #encoded_model = JSON.dumps(modelstuff, sort_keys=True).encode()
         #return hashlib.sha256(encoded_block).hexdigest()
+        
+    def sign(self, modelData):
+        h = blake2b(digest_size=AUTH_SIZE, key=SECRET_KEY)
+        h.update(modelData)
+        return h.hexdigest().encode('utf-8')
+
+    def verify(self, modelData, sig):
+        good_sig = self.sign(modelData)
+        return compare_digest(good_sig, sig)
+
+    # modelData = b'user-alice'
+    # sig = sign(modelData)
+    # print("{0},{1}".format(modelData.decode('utf-8'), sig))
+    # #user-alice,b'43b3c982cf697e0c5ab22172d1ca7421'
+    # verify(modelData, sig)
 
 
 class Blockchain:
