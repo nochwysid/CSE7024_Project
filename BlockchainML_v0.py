@@ -167,13 +167,13 @@ app = Flask(__name__, template_folder=pathstub)
 blockchain = Blockchain(numModels=5,modSizeLim=200)
  
 # Mining a new block, needs to be modified
-@app.route('/mine_block', methods=['GET', 'POST'])
-def mine_block():
+#@app.route('/mine_block', methods=['GET', 'POST'])
+def mine_block(ins):
     ''' need to check that nothing in 'data' that is not an instance of ModelContainer class and that no 
         more than 5 ModelContainers in data '''
         
 
-    modelParams = {}
+    modelParams = ins
     modelReadMe = """ """
     encoded_model = str([item for item in modelParams]) + modelReadMe
     modelHash = hashlib.sha256(encoded_model.encode()).hexdigest()
@@ -210,7 +210,8 @@ def get_specs():
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
-
+        mine_block(content)
+        print(content)
     return render_template('newblock.html')
 
 
