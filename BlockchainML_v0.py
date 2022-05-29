@@ -61,15 +61,15 @@ class ModelContainer:
         ''' This is where the model gets checked for compatibility and then evaluated on users data.
             If model tested is different from and/or better than indigenous model, append own signature
             and rebroadcast. If none better than indigenous, create new container and append to data.'''
+        #this will have to work for now. need to improve this because this should not allow passing args
+        exec(self.modelParams['content'])
+        
+        ''' alternatively,  fname = self.modelParams['title']
+                            exec(open(fname).read())'''
         ''' Maybe need to use IPC or something to run evaluation, i.e. Tensorflow or PyTorch or custom 
-            frameworks '''
-        pass
+            frameworks. How to get results to compare between models? '''
+        #pass
 
-    def addModel(self, modelBluePrint):
-        ''' This is where a new model would be added given "modelBluePrint", a dictionary of specifications,
-            i.e. number of layers, neurons in each layer, activations, regularizations, which environment, 
-            frameworks, libraries, etc. Also included in the dictionary should be paths and file names.'''
-        pass
 
 
     def signModel(self, signingKey, yournamehere):
@@ -78,11 +78,11 @@ class ModelContainer:
         hashMod = self.hash(
             str(self.modelParams) +
             str(self.modelReadMe) +
-            str(self.modelHash) +
-            str(self.modelSignatures) 
+            str(self.modelHash) 
         )
         sig = signingKey.sign(hashMod,'base64')
-        self.signature = sig.toDER('hex')
+        
+        self.modelSignatures.append(sig.toDER('hex'))
         #encoded_model = JSON.dumps(modelstuff, sort_keys=True).encode()
         #return hashlib.sha256(encoded_block).hexdigest()
 
@@ -226,9 +226,13 @@ def model_specs(mfw, layers, weights, params):
 # Display blockchain in JSON format
 @app.route('/get_chain', methods=['GET'])
 def display_chain():
-    response = {"<h1>chain</h1>": blockchain.chain,
-                "length": len(blockchain.chain)}
-    return jsonify(response), 200
+    # response = {'chain': str(blockchain.chain),
+    #             'length': len(blockchain.chain)}
+    response = [len(blockchain.chain)]
+    response.extend([x for x in blockchain.chain])
+    print(blockchain.chain)
+    #return jsonify(response), 200
+    return render_template('lastblock.html', messages=response)
  
 # Check validity of the blockchain
 @app.route('/valid', methods=['GET'])
@@ -249,8 +253,11 @@ messages = [{'title': 'Message the First',
             {'title': '',
              'content': ' - parsing input'},
             {'title': '',
-             'content': ' - broadcasting and recieving'}
+             'content': ' - broadcasting and recieving'},
+            {'title': '',
+             'content': ' - evaluating models'}
             ]
+
 
 @app.route('/')
 def index():
