@@ -13,4 +13,8 @@ synaptic_weights = 2 * np.random.random((3, 1)) - 1
 for iteration in range(10000):
     output = 1 / (1 + np.exp(-(np.dot(training_set_inputs, synaptic_weights))))
     synaptic_weights += np.dot(training_set_inputs.T, (training_set_outputs - output) * output * (1 - output))
-print( 'Toy NN result', 1 / (1 + np.exp(-(np.dot(np.array([1, 0, 0]), synaptic_weights)))) )
+a = 1 / (1 + np.exp(-(np.dot(np.array([1, 0, 0]), synaptic_weights))))
+f = open("score.txt", "w")
+f.write(str(a[0]))
+f.close()
+print( 'Toy NN result', a[0])
