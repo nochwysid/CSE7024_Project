@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %} {% endblock %} - FlaskApp</title>
+    <title>{% block title %} {% endblock %} - CSE 7024 BC Page</title>
     <style>
         .message {
             padding: 10px;
@@ -21,9 +21,12 @@
 <body>
     <nav>
         <!--remember that argument of url_for needs to be function name, not html file name-->
-        <a href="{{ url_for('index') }}">FlaskApp</a>
-        <a href="#">About</a>
+        <a href="{{ url_for('index') }}">P2P DL on BC</a>
+        <!--# is GNDN-->
+        <a href="#">GNDN</a>
+        <a href="{{ url_for('about') }}">About</a>
         <a href="{{ url_for('get_specs') }}">New Block</a>
+        <a href="{{ url_for('get_chain') }}">Last Block</a>
     </nav>
     <hr>
     <div class="content">
