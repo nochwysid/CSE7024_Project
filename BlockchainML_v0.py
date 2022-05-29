@@ -71,10 +71,13 @@ class ModelContainer:
         
         tmp = self.modelParams
         exec(tmp)
-        #with open('score.txt',r)
         f = open("score.txt", "r")
-        self.topscore = float(f.readline())
+        score  = float(f.readline())
         f.close()
+        
+        if score > self.topscore:
+            self.topscore = score
+
         #self.topscore = exec(tmp)
         print('top score:',self.topscore)
         ''' alternatively,  fname = self.modelParams['title']
