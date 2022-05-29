@@ -57,12 +57,15 @@ class ModelContainer:
         for item in self.modelParams:# everything needed to instantiate and run a model
             yield item
     
-    def evalModel(self, modelID):
+    def evalModel(self):
         ''' This is where the model gets checked for compatibility and then evaluated on users data.
             If model tested is different from and/or better than indigenous model, append own signature
             and rebroadcast. If none better than indigenous, create new container and append to data.'''
         #this will have to work for now. need to improve this because this should not allow passing args
-        exec(self.modelParams['content'])
+        print(type(self.modelParams))
+        
+        tmp = self.modelParams
+        exec(tmp)
         
         ''' alternatively,  fname = self.modelParams['title']
                             exec(open(fname).read())'''
@@ -211,10 +214,11 @@ def get_specs():
         title = request.form['title']
         content = request.form['content']
         mine_block(content)
-        print(content)
+        #print(content)
     return render_template('newblock.html')
 
 
+@app.route('/model_specs', methods=['GET'])
 def model_specs(mfw, layers, weights, params):
     main_framework = mfw
     layers = layers
@@ -225,13 +229,23 @@ def model_specs(mfw, layers, weights, params):
     biases = params['BL']
     
 # Display blockchain in JSON format
-@app.route('/get_chain', methods=['GET'])
+@app.route('/get_chain', methods=('GET', 'POST'))
 def display_chain():
     # response = {'chain': str(blockchain.chain),
     #             'length': len(blockchain.chain)}
+    if request.method == 'POST':
+        blk = blockchain.chain[-1]
+        data = blk['data']
+        mc = data[0]
+        mc.evalModel()
+        #blk['data'].evalModel()
+        #print(blk['data'])
+        print(data[0].modelParams)
+        print('Done!')
+        
     response = [len(blockchain.chain)]
     response.extend([x for x in blockchain.chain])
-    print(blockchain.chain)
+    #print(blockchain.chain)
     #return jsonify(response), 200
     return render_template('lastblock.html', messages=response)
  
@@ -259,14 +273,13 @@ messages = [{'title': 'Message the First',
              'content': ' - evaluating models'}
             ]
 
-
 @app.route('/')
 def index():
     return render_template('index.html', messages=messages)
 
- @app.route('/about')
+@app.route('/about')
 def about():
     return render_template('about.html')
- 
+
 # Run the Flask server locally
 app.run(host='127.0.0.1', port=5000)
