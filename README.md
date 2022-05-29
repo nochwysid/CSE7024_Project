@@ -7,7 +7,7 @@ The most challengeing part of the implementation is figuring out how to evaluate
 #--TODO--    
 - [x] implement adding a model to a block  
 - [x] evaluate a model  
-- [ ] compare to existing best model  
+- [x] compare to existing best model  
 - [x] sign model    
 - [ ] implement broadcasting and beaconing  
 - [ ] develop means to check acceptance level to determine whether or not block gets added to chain  
