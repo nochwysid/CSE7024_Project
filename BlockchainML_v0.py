@@ -38,7 +38,7 @@ import datetime
 import hashlib
  
 # Flask is for creating the web app and jsonify is for displaying the blockchain
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
  
 # To store data in our blockchain
 import json
@@ -152,23 +152,27 @@ class Blockchain:
 
     def broadcastChain(self):
         ''' need additional functionality here '''
+        """ validating the whole chain would require walking the whole chain, potentially petabytes of 
+            data, thus it may be more feasible, or even necessary, to maintain only a portion"""
         if len(self.chain) > 3:
             return self.chain[:-3]
         else:
             return self.chain
     
+pathstub = '</your/path/here/>'
 # Creating the Web App using Flask
-pathstub = '</your/path/here/>' #don't forget to change to appropriate path
-app = Flask(__name__, template_folder=pathstub)
+app = Flask(__name__, template_folder='/home/Strontium/Desktop/SubDeskTopSees/CSE7024_-_BC/')
  
 # Create an instance of the class Blockchain
 blockchain = Blockchain(numModels=5,modSizeLim=200)
  
 # Mining a new block, needs to be modified
-@app.route('/mine_block', methods=['GET'])
+@app.route('/mine_block', methods=['GET', 'POST'])
 def mine_block():
     ''' need to check that nothing in 'data' that is not an instance of ModelContainer class and that no 
         more than 5 ModelContainers in data '''
+        
+
     modelParams = {}
     modelReadMe = """ """
     encoded_model = str([item for item in modelParams]) + modelReadMe
@@ -200,8 +204,26 @@ def mine_block():
         response = {'message': 'Model added at block ' + bidx + ' container '+ cidx}
         return jsonify(response), 200
     #pass
-     
- 
+
+@app.route('/get_specs', methods=('GET', 'POST'))
+def get_specs():     
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        print(title)
+    return render_template('newblock.html')
+
+
+@app.route('/model_specs', methods=['GET'])
+def model_specs(mfw, layers, weights, params):
+    main_framework = mfw
+    layers = layers
+    weights = weights
+    learn_rate = params['LR']# default value
+    dropout = params['DO'] # percent to drop, pkeep = 1 - dropout
+    activations = params['ACT']
+    biases = params['BL']
+    
 # Display blockchain in JSON format
 @app.route('/get_chain', methods=['GET'])
 def display_chain():
@@ -224,6 +246,15 @@ def valid():
 def tester():
     return render_template('CSE_7024_BC_Page.html')
 
+messages = [{'title': 'Message One',
+             'content': 'Message One Content'},
+            {'title': 'Message Two',
+             'content': 'Message Two Content'}
+            ]
+
+@app.route('/')
+def index():
+    return render_template('index.html', messages=messages)
 
 # Run the Flask server locally
 app.run(host='127.0.0.1', port=5000)
