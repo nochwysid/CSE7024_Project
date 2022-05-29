@@ -241,9 +241,6 @@ def valid():
         response = {'message': 'The Blockchain is not valid.'}
     return jsonify(response), 200
  
-@app.route('/tester', methods=['GET'])
-def tester():
-    return render_template('CSE_7024_BC_Page.html')
 
 messages = [{'title': 'Message the First',
              'content': 'These messages are in the main code file'},
