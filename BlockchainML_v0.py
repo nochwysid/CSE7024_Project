@@ -161,7 +161,7 @@ class Blockchain:
     
 pathstub = '</your/path/here/>'
 # Creating the Web App using Flask
-app = Flask(__name__, template_folder='/home/Strontium/Desktop/SubDeskTopSees/CSE7024_-_BC/')
+app = Flask(__name__, template_folder=pathstub)
  
 # Create an instance of the class Blockchain
 blockchain = Blockchain(numModels=5,modSizeLim=200)
@@ -210,11 +210,10 @@ def get_specs():
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
-        print(title)
+
     return render_template('newblock.html')
 
 
-@app.route('/model_specs', methods=['GET'])
 def model_specs(mfw, layers, weights, params):
     main_framework = mfw
     layers = layers
@@ -246,15 +245,23 @@ def valid():
 def tester():
     return render_template('CSE_7024_BC_Page.html')
 
-messages = [{'title': 'Message One',
-             'content': 'Message One Content'},
-            {'title': 'Message Two',
-             'content': 'Message Two Content'}
+messages = [{'title': 'Message the First',
+             'content': 'These messages are in the main code file'},
+            {'title': 'TODO',
+             'content': ' - signing models'},
+            {'title': '',
+             'content': ' - parsing input'},
+            {'title': '',
+             'content': ' - broadcasting and recieving'}
             ]
 
 @app.route('/')
 def index():
     return render_template('index.html', messages=messages)
 
+ @app.route('/about')
+def about():
+    return render_template('about.html')
+ 
 # Run the Flask server locally
 app.run(host='127.0.0.1', port=5000)
