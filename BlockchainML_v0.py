@@ -71,13 +71,14 @@ class ModelContainer:
         
         tmp = self.modelParams
         exec(tmp)
+        #with open('score.txt',r)
         f = open("score.txt", "r")
         score  = float(f.readline())
         f.close()
-        
         if score > self.topscore:
             self.topscore = score
-
+            self.modelSignatures.append(self.sign())
+        
         #self.topscore = exec(tmp)
         print('top score:',self.topscore)
         ''' alternatively,  fname = self.modelParams['title']
@@ -101,11 +102,18 @@ class ModelContainer:
         self.modelSignatures.append(sig.toDER('hex'))
         #encoded_model = JSON.dumps(modelstuff, sort_keys=True).encode()
         #return hashlib.sha256(encoded_block).hexdigest()
-        
-    def sign(self, modelData):
+    
+    def sign(self):
+        modelData = str(self.modelParams) + str(self.modelReadMe) + str(self.modelHash) 
+        modelData = modelData.encode('utf-8')
         h = blake2b(digest_size=AUTH_SIZE, key=SECRET_KEY)
         h.update(modelData)
-        return h.hexdigest().encode('utf-8')
+        return h.hexdigest().encode('utf-8')    
+    
+    # def sign(self, modelData):
+    #     h = blake2b(digest_size=AUTH_SIZE, key=SECRET_KEY)
+    #     h.update(modelData)
+    #     return h.hexdigest().encode('utf-8')
 
     def verify(self, modelData, sig):
         good_sig = self.sign(modelData)
@@ -209,7 +217,7 @@ def mine_block(ins):
     encoded_model = str([item for item in modelParams]) + modelReadMe
     modelHash = hashlib.sha256(encoded_model.encode()).hexdigest()
     key = 'this is a temporary key, like lorem ipsum'
-    modelSignatures = hashlib.sha256(key.encode()).hexdigest()
+    modelSignatures = list(hashlib.sha256(key.encode()).hexdigest())
     # data is an object, not a list or dict
     modcon = ModelContainer(modelParams, modelReadMe, modelHash, modelSignatures)
 
@@ -273,6 +281,13 @@ def display_chain():
         
     response = [len(blockchain.chain)]
     response.extend([x for x in blockchain.chain])
+    blk = blockchain.chain[-1]
+    deet = blk['data']
+    mc = deet[0]
+    print('model signatures type:',type(mc.modelSignatures))
+    print(mc.modelSignatures[0])
+    response.append(mc.modelSignatures)
+    response.append(mc.topscore)
     #print(blockchain.chain)
     #return jsonify(response), 200
     return render_template('lastblock.html', messages=response)
