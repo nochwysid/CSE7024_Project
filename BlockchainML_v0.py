@@ -45,6 +45,9 @@ from flask import Flask, jsonify, render_template, request
 # To store data in our blockchain
 import json
  
+# For broadcast/recieving
+import socket
+ 
 SECRET_KEY = b'pseudorandomly generated server secret key'
 AUTH_SIZE = 16 
 
@@ -78,6 +81,8 @@ class ModelContainer:
         if score > self.topscore:
             self.topscore = score
             self.modelSignatures.append(self.sign())
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect((socket.gethostname(),1234))
         
         #self.topscore = exec(tmp)
         print('top score:',self.topscore)
