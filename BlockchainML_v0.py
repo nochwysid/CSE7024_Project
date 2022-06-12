@@ -45,6 +45,7 @@ from flask import Flask, jsonify, render_template, request
  
 # To store data in our blockchain
 import json
+#import jsons
 
 import TxRx
 # For broadcast/recieving
@@ -206,6 +207,9 @@ class Blockchain:
         return True
  
     def hash(self, block):
+        print(len(block),type(block))
+        for item in block:
+            print(item)
         encoded_block = json.dumps(block, sort_keys=True).encode()
         #encoded_block = block.toJSON().encode()
         return hashlib.sha256(encoded_block).hexdigest()
@@ -246,7 +250,7 @@ class Blockchain:
 
 pathstub = '</your/path/here/>'
 # Creating the Web App using Flask
-app = Flask(__name__, template_folder=pathstub)
+app = Flask(__name__, template_folder='/home/Strontium/Desktop/SubDeskTopSees/CSE7024_-_BC/')
  
 # Create an instance of the class Blockchain
 blockchain = Blockchain(numModels=5,modSizeLim=200)
@@ -278,8 +282,8 @@ def mine_block(ins):
     ckpt = blockchain.checkpoint(previous_ckpt)
     previous_hash = blockchain.hash(previous_block)
     if (len(previous_block['data']) > 5):
+        #block = blockchain.create_block(ckpt, previous_hash, data=[modcon.toJSON()])
         block = blockchain.create_block(ckpt, previous_hash, data=[modcon])
-     
         response = {'message': 'A block is MINED',
                     'index': block['index'],
                     'timestamp': block['timestamp'],
@@ -287,6 +291,7 @@ def mine_block(ins):
                     'previous_hash': block['previous_hash']}
         return jsonify(response), 200
     else:
+        #previous_block['data'].append(modcon.toJSON())
         previous_block['data'].append(modcon)
         # bidx is the index of the block in the chain
         # cidx is the index of the modelcontainer in the data
@@ -340,10 +345,10 @@ def model_specs(mfw, layers, weights, params):
 # Display blockchain in JSON format
 @app.route('/get_chain', methods=('GET', 'POST'))
 def display_chain():
-    # response = {'chain': str(blockchain.chain),
-    #             'length': len(blockchain.chain)}
+    response = {'chain': str(blockchain.chain),
+                'length': len(blockchain.chain)}
     if len(blockchain.chain) == 0:
-        return render_template('lastblock.html', messages=["Blockchain is empty"])
+        return render_template('lastblock.html', messages={'chain':"Blockchain is empty"})
     if request.method == 'POST':
         blk = blockchain.chain[-1]
         data = blk['data']
@@ -355,18 +360,20 @@ def display_chain():
         #blk['data'].evalModel()
         #print(blk['data'])
         print(data[0].modelParams)
+        response['topscore'] = [mc.topscore]
         print('Done!')
+        return render_template('lastblock.html', messages=response)
         
-    response = [len(blockchain.chain)]
-    response.extend([x for x in blockchain.chain])
+    response['length'] = len(blockchain.chain)
+    #response.extend([x for x in blockchain.chain])
     blk = blockchain.chain[-1]
     if len(blk['data']) >0:
         deet = blk['data']
         mc = deet[0]
         print('model signatures type:',type(mc.modelSignatures))
         print(mc.modelSignatures[0])
-        response.append(mc.modelSignatures)
-        response.append(mc.topscore)
+        response['modelSigs'] = [mc.modelSignatures]
+        response['topscore'] = [mc.topscore]
     else:
         response.append(0)
     #print(blockchain.chain)
