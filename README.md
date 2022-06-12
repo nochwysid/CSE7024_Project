@@ -10,6 +10,7 @@ It might be better to have only one model per block
 :heavy_check_mark: evaluate a model  
 :heavy_check_mark: compare to existing best model  
 :heavy_check_mark: sign model    
+:heavy_check_mark: implement method to manually add peers (not inside blockchain)
 :white_check_mark: implement broadcasting and beaconing  
 :heavy_check_mark: add methods to save/load blockchain to/from nonvolatile storage
 - [ ] develop means to check acceptance level to determine whether or not block gets added to chain  
