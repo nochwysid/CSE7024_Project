@@ -33,7 +33,8 @@ by using Flask and deployed locally or publicly as per the need of the user.
  
 # For timestamp
 import datetime
- 
+# For saving blockchain to nonvolatile storage
+import pickle
 # Calculating the hash in order to add digital fingerprints to the blocks
 import hashlib
 from hashlib import blake2b
@@ -44,9 +45,11 @@ from flask import Flask, jsonify, render_template, request
  
 # To store data in our blockchain
 import json
- 
+
+import TxRx
 # For broadcast/recieving
 import socket
+import select
  
 SECRET_KEY = b'pseudorandomly generated server secret key'
 AUTH_SIZE = 16 
@@ -68,7 +71,11 @@ class ModelContainer:
     def evalModel(self):
         ''' This is where the model gets checked for compatibility and then evaluated on users data.
             If model tested is different from and/or better than indigenous model, append own signature
-            and rebroadcast. If none better than indigenous, create new container and append to data.'''
+            and rebroadcast. If none better than indigenous, create new container and append to data.
+            Can try saving model to disk, then using multiprocessing or subprocessing and importing. 
+            Otherwise, just write result to disk, read result and compare. The question is: how to 
+            exchange data without writing to disk at all?
+        '''
         #this will have to work for now. need to improve this because this should not allow passing args
         print(type(self.modelParams))
         
@@ -81,11 +88,13 @@ class ModelContainer:
         if score > self.topscore:
             self.topscore = score
             self.modelSignatures.append(self.sign())
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect((socket.gethostname(),1234))
+            print('top score:',self.topscore)
+            txsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            txsock.connect((socket.gethostname(),1234))
+            return True
         
         #self.topscore = exec(tmp)
-        print('top score:',self.topscore)
+        print('top score: ',self.topscore, ', model score: ',score)
         ''' alternatively,  fname = self.modelParams['title']
                             exec(open(fname).read())'''
         ''' Maybe need to use IPC or something to run evaluation, i.e. Tensorflow or PyTorch or custom 
@@ -199,24 +208,50 @@ class Blockchain:
         """ validating the whole chain would require walking the whole chain, potentially petabytes of 
             data, thus it may be more feasible, or even necessary, to maintain only a portion"""
         if len(self.chain) > 3:
-            return self.chain[:-3]
+            TxRx.txmsg( self.chain[:-3])
         else:
-            return self.chain
+            TxRx.txmsg(self.chain)
     
+    def drop_peer(self, peer_id):
+        """
+        Stop recieving from/transmitting to a node from the network. Intended to address possibility of 
+        'nefarious nodes'
+
+        Args:
+            peer_id (TYPE): DESCRIPTION.
+
+        Returns:
+            None.
+
+        """
+        
+        pass
+    def save(self, path, name):
+        pickle.dump(self, path + name + '.pkl')
+    
+    def load(self, path, name):
+        return pickle.load(path + name + '.pkl')
+
+
 pathstub = '</your/path/here/>'
 # Creating the Web App using Flask
-app = Flask(__name__, template_folder=pathstub)
+app = Flask(__name__, template_folder='/home/Strontium/Desktop/SubDeskTopSees/CSE7024_-_BC/')
  
 # Create an instance of the class Blockchain
 blockchain = Blockchain(numModels=5,modSizeLim=200)
- 
+
+# Or read from file
+blockchain = Blockchain.load(pathstub, 'blockchain')
+
+#blockchain = pickle.load(pathstub+'blockchain.pkl')
+#blockchain.save(pathstub, 'blockchain')
 # Mining a new block, needs to be modified
 #@app.route('/mine_block', methods=['GET', 'POST'])
+
 def mine_block(ins):
     ''' need to check that nothing in 'data' that is not an instance of ModelContainer class and that no 
         more than 5 ModelContainers in data '''
         
-
     modelParams = ins
     modelReadMe = """ """
     encoded_model = str([item for item in modelParams]) + modelReadMe
@@ -278,7 +313,9 @@ def display_chain():
         blk = blockchain.chain[-1]
         data = blk['data']
         mc = data[0]
-        mc.evalModel()
+        tf = mc.evalModel()
+        if tf:
+            TxRx.txmsg(blk)
         #blk['data'].evalModel()
         #print(blk['data'])
         print(data[0].modelParams)
