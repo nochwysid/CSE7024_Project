@@ -25,7 +25,7 @@ PORT = 1234
 
 """
 """
-my_username = input("Username: ")
+#my_username = input("Username: ")
 
 txsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 txsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -39,13 +39,14 @@ socksin = [txsock]
 nodes = {}
 
 rxsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+rxsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 rxsock.connect((IP, PORT))
 # stop .recv() call from blocking
 rxsock.setblocking(False)
 
-uname = my_username.encode('utf-8')
-uname_hdr = f"{len(uname):<{HEADER_LENGTH}}".encode('utf-8')
-rxsock.send(uname_hdr + uname)
+#uname = my_username.encode('utf-8')
+#uname_hdr = f"{len(uname):<{HEADER_LENGTH}}".encode('utf-8')
+#rxsock.send(uname_hdr + uname)
 
 def rxmsg(insock):
     try:
@@ -72,10 +73,10 @@ def txmsg(modelinfo):
                     continue
                 socksin.append(nodesock)
                 nodes[nodesock] = user
-                print('new conn from {}:{}, user: {}'.format(*nodeaddr, user['data'].decode('utf-8')))
+                print('line 75 new conn from {}:{}, user: {}'.format(*nodeaddr, user['data'].decode('utf-8')))
             else:               
                 user = nodes[sock]
-                print(f'message from {user["data"].decode("utf-8")}: {msg["data"].decode("utf-8")}')
+                
                 for nodesock in nodes:
                     if nodesock != sock:
                         nodesock.send(modelinfo_hdr + modelinfo)
@@ -84,31 +85,31 @@ def txmsg(modelinfo):
             del nodes[sock]
         #rxsock.send(modelinfo_hdr + modelinfo)
     
-
-while True:
-    reads, _, excepts = select.select(socksin, [], socksin)
-    for sock in reads:
-        if sock == txsock:
-            nodesock, nodeaddr = txsock.accept()
-            user = rxmsg(nodesock)
-            if user is False:
-                continue
-            socksin.append(nodesock)
-            nodes[nodesock] = user
-            print('new conn from {}:{}, user: {}'.format(*nodeaddr, user['data'].decode('utf-8')))
-        else:
-            msg = rxmsg(sock)
-            if msg is False:
-                print('closed conn from: {}'.format(nodes[sock]['data'].decode('utf-8')))
-                socksin.remove(sock)
-                del nodes[sock]
-                continue
-            user = nodes[sock]
-            print(f'message from {user["data"].decode("utf-8")}: {msg["data"].decode("utf-8")}')
-            for nodesock in nodes:
-                if nodesock != sock:
-                    nodesock.send(user['header'] + user['data'] + msg['header'] + msg['data'])
-    for sock in excepts:
-        socksin.remove(sock)
-        del nodes[sock]
+def get_conns():
+    while True:
+        reads, _, excepts = select.select(socksin, [], socksin)
+        for sock in reads:
+            if sock == txsock:
+                nodesock, nodeaddr = txsock.accept()
+                user = rxmsg(nodesock)
+                if user is False:
+                    continue
+                socksin.append(nodesock)
+                nodes[nodesock] = user
+                print('line 98 new conn from {}:{}, user: {}'.format(*nodeaddr, user['data'].decode('utf-8')))
+            else:
+                msg = rxmsg(sock)
+                if msg is False:
+                    print('closed conn from: {}'.format(nodes[sock]['data'].decode('utf-8')))
+                    socksin.remove(sock)
+                    del nodes[sock]
+                    continue
+                user = nodes[sock]
+                print(f'message from {user["data"].decode("utf-8")}: {msg["data"].decode("utf-8")}')
+                for nodesock in nodes:
+                    if nodesock != sock:
+                        nodesock.send(user['header'] + user['data'] + msg['header'] + msg['data'])
+        for sock in excepts:
+            socksin.remove(sock)
+            del nodes[sock]
 
