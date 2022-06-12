@@ -8,16 +8,15 @@
         <input type="text" name="path"
                placeholder="Save Location"
                value="{{ request.form['path'] }}"></input>
-        <br>
+        <br></br>
 
         <label for="name">Give a name to your local copy of the blockchain</label>
         <br>
-        <textarea name="name"
+        <input type="text" name="name"
                   placeholder="blockchain"
-                  rows="15"
-                  cols="60"
-                  >{{ request.form['name'] }}</textarea>
-        <br>
+                  value="{{ request.form['name'] }}"
+                  ></textarea>
+        <br></br>
         <button type="submit">Save</button>
     </form>
 {% endblock %}
