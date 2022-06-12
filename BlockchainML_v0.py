@@ -54,6 +54,8 @@ import select
 SECRET_KEY = b'pseudorandomly generated server secret key'
 AUTH_SIZE = 16 
 
+peers = {}
+
 class ModelContainer:
     ''' Intended to support only established frameworks such as PyTorch or TensorFlow. See version 1 
         for custom framework support.'''
@@ -313,6 +315,16 @@ def save_chain():
         #print(content)
     return render_template('saveBC.html')
    
+@app.route('/add_peers', methods=('GET', 'POST'))
+def add_peers():     
+    if request.method == 'POST':
+        uname = request.form['user']
+        addr = request.form['addr']
+        port = request.form['port']
+        #peers[uname] = (addr,port)
+        TxRx.nodes[uname] = (addr,port)
+        #print(content)
+    return render_template('addpeers.html')   
    
 # Display blockchain in JSON format
 @app.route('/get_chain', methods=('GET', 'POST'))
