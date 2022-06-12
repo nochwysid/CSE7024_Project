@@ -10,7 +10,8 @@ It might be better to have only one model per block
 - [x] evaluate a model  
 - [x] compare to existing best model  
 - [x] sign model    
-- [-] implement broadcasting and beaconing  
+- [:heavy_check_mark:] implement broadcasting and beaconing  
 - [x] add methods to save/load blockchain to/from nonvolatile storage
 - [ ] develop means to check acceptance level to determine whether or not block gets added to chain  
 - [ ] implement means to check if model is compatible with device  
+:heavy_check_mark:
