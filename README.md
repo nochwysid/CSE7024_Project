@@ -6,12 +6,12 @@ The most challengeing part of the implementation is figuring out how to evaluate
 It might be better to have only one model per block
 '9linenn.py' is example to copy-paste the contents to show a model can be added and run  
 #--TODO--    
-- [x] implement adding a model to a block  
-- [x] evaluate a model  
+:heavy_check_mark: implement adding a model to a block  
+[:heavy_check_mark:] evaluate a model  
 - [x] compare to existing best model  
 - [x] sign model    
-- [:heavy_check_mark:] implement broadcasting and beaconing  
+ [:heavy_check_mark:] implement broadcasting and beaconing  
 - [x] add methods to save/load blockchain to/from nonvolatile storage
 - [ ] develop means to check acceptance level to determine whether or not block gets added to chain  
 - [ ] implement means to check if model is compatible with device  
-:heavy_check_mark:
+
