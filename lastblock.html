@@ -6,6 +6,11 @@
         <div class='message'>
             <h3>{{ message['chain'] }}</h3>
             <p>{{ message['length'] }}</p>
+            middle text
+            <p>{{ message}}</p>
         </div>
     {% endfor %}
+    <form method="post">
+    <button type="submit">Test model</button>
+    </form>
 {% endblock %}
