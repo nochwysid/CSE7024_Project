@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Last Updated : 12 Jun, 2022
+Last Updated : 19 Feb, 2022
 
 @author: Abhishek Tiwari, Simran Arora, Nikunj, Punam
 https://www.geeksforgeeks.org/create-simple-blockchain-using-python/
@@ -53,8 +53,8 @@ import select
  
 SECRET_KEY = b'pseudorandomly generated server secret key'
 AUTH_SIZE = 16 
-
 peers = {}
+
 
 class ModelContainer:
     ''' Intended to support only established frameworks such as PyTorch or TensorFlow. See version 1 
@@ -65,6 +65,10 @@ class ModelContainer:
         self.modelHash = modelHash # to identify the model
         self.modelSignatures = modelSignatures # to verify integrity, etc.
         self.topscore = 0.0
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4)
 
     def getParams(self):
         for item in self.modelParams:# everything needed to instantiate and run a model
@@ -151,6 +155,10 @@ class Blockchain:
         self.numModels = numModels
         self.modSizeLim = modSizeLim
  
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4)    
+ 
     # This function adds further blocks onto the chain
     def create_block(self, ckpt, previous_hash, data): #proof, previous_hash, data):
         block = {'index': len(self.chain) + 1,
@@ -199,6 +207,7 @@ class Blockchain:
  
     def hash(self, block):
         encoded_block = json.dumps(block, sort_keys=True).encode()
+        #encoded_block = block.toJSON().encode()
         return hashlib.sha256(encoded_block).hexdigest()
     
     def updateChain(self):
@@ -243,7 +252,7 @@ app = Flask(__name__, template_folder=pathstub)
 blockchain = Blockchain(numModels=5,modSizeLim=200)
 
 # Or read from file
-blockchain = Blockchain.load(pathstub, 'blockchain')
+#blockchain = Blockchain.load(pathstub, 'blockchain')
 
 #blockchain = pickle.load(pathstub+'blockchain.pkl')
 #blockchain.save(pathstub, 'blockchain')
@@ -264,6 +273,7 @@ def mine_block(ins):
     modcon = ModelContainer(modelParams, modelReadMe, modelHash, modelSignatures)
 
     previous_block = blockchain.print_previous_block()
+    print(type(previous_block))
     previous_ckpt = previous_block['ckpt']
     ckpt = blockchain.checkpoint(previous_ckpt)
     previous_hash = blockchain.hash(previous_block)
@@ -286,6 +296,27 @@ def mine_block(ins):
         return jsonify(response), 200
     #pass
 
+# Display blockchain in JSON format
+@app.route('/save_chain', methods=('GET', 'POST'))
+def save_chain():
+    if request.method == 'POST':
+        name = request.form['name']
+        path = request.form['path']
+        blockchain.save(path, name)
+        #print(content)
+    return render_template('saveBC.html')
+
+@app.route('/add_peers', methods=('GET', 'POST'))
+def add_peers():     
+    if request.method == 'POST':
+        uname = request.form['user']
+        addr = request.form['addr']
+        port = request.form['port']
+        #peers[uname] = (addr,port)
+        TxRx.nodes[uname] = (addr,port)
+        #print(content)
+    return render_template('addpeers.html')
+
 @app.route('/get_specs', methods=('GET', 'POST'))
 def get_specs():     
     if request.method == 'POST':
@@ -306,31 +337,13 @@ def model_specs(mfw, layers, weights, params):
     activations = params['ACT']
     biases = params['BL']
     
-@app.route('/save_chain', methods=('GET', 'POST'))
-def save_chain():
-    if request.method == 'POST':
-        name = request.form['name']
-        path = request.form['path']
-        blockchain.save(path, name)
-        #print(content)
-    return render_template('saveBC.html')
-   
-@app.route('/add_peers', methods=('GET', 'POST'))
-def add_peers():     
-    if request.method == 'POST':
-        uname = request.form['user']
-        addr = request.form['addr']
-        port = request.form['port']
-        #peers[uname] = (addr,port)
-        TxRx.nodes[uname] = (addr,port)
-        #print(content)
-    return render_template('addpeers.html')   
-   
 # Display blockchain in JSON format
 @app.route('/get_chain', methods=('GET', 'POST'))
 def display_chain():
     # response = {'chain': str(blockchain.chain),
     #             'length': len(blockchain.chain)}
+    if len(blockchain.chain) == 0:
+        return render_template('lastblock.html', messages=["Blockchain is empty"])
     if request.method == 'POST':
         blk = blockchain.chain[-1]
         data = blk['data']
@@ -347,12 +360,15 @@ def display_chain():
     response = [len(blockchain.chain)]
     response.extend([x for x in blockchain.chain])
     blk = blockchain.chain[-1]
-    deet = blk['data']
-    mc = deet[0]
-    print('model signatures type:',type(mc.modelSignatures))
-    print(mc.modelSignatures[0])
-    response.append(mc.modelSignatures)
-    response.append(mc.topscore)
+    if len(blk['data']) >0:
+        deet = blk['data']
+        mc = deet[0]
+        print('model signatures type:',type(mc.modelSignatures))
+        print(mc.modelSignatures[0])
+        response.append(mc.modelSignatures)
+        response.append(mc.topscore)
+    else:
+        response.append(0)
     #print(blockchain.chain)
     #return jsonify(response), 200
     return render_template('lastblock.html', messages=response)
