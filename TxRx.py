@@ -61,7 +61,8 @@ def rxmsg(insock):
 
 def txmsg(modelinfo):
     if modelinfo:
-        modelinfo = modelinfo.encode('utf-8')
+        #modelinfo = modelinfo.encode('utf-8')
+        modelinfo = str(modelinfo).encode('utf-8')
         modelinfo_hdr = f"{len(modelinfo):<{HEADER_LENGTH}}".encode('utf-8')
         
         _, writes, excepts = select.select(socksin, [], socksin)
