@@ -235,7 +235,7 @@ class Blockchain:
 
 pathstub = '</your/path/here/>'
 # Creating the Web App using Flask
-app = Flask(__name__, template_folder='/home/Strontium/Desktop/SubDeskTopSees/CSE7024_-_BC/')
+app = Flask(__name__, template_folder=pathstub)
  
 # Create an instance of the class Blockchain
 blockchain = Blockchain(numModels=5,modSizeLim=200)
