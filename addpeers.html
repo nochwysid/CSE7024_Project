@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Choose location and name for saving state of blockchain {% endblock %}</h1>
+    <form method="post">
+        <label for="user">User name</label>
+        <br>
+        <input type="text" name="user"
+               placeholder="name of peer"
+               value="{{ request.form['user'] }}"></input>
+        <br>
+
+        <label for="addr">IP address of peer</label>
+        <br>
+        <textarea name="addr"
+                  placeholder="127.0.0.1"
+                  rows="15"
+                  cols="60"
+                  >{{ request.form['addr'] }}</textarea>
+        <br>
+        <label for="port">Port to use for communications</label>
+        <br>
+        <textarea name="port"
+                  placeholder="5555"
+                  rows="15"
+                  cols="60"
+                  >{{ request.form['port'] }}</textarea>
+        <br>
+        <button type="submit">Save</button>
+    </form>
+{% endblock %}
