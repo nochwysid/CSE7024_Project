@@ -4,10 +4,10 @@
     <h1>{% block title %} Messages {% endblock %}</h1>
     {% for message in messages %}
         <div class='message'>
-            <h3>{{ message['chain'] }}</h3>
-            <p>{{ message['length'] }}</p>
-            middle text
-            <p>{{ message}}</p>
+            <h3>{{ messages['chain'] }}</h3>
+            <p>{{ messages['length'] }}</p>
+            <p>{{ messages['data'] }}</p>
+            <p>{{ messages['topscore'] }}</p>
         </div>
     {% endfor %}
     <form method="post">
