@@ -315,7 +315,8 @@ def display_chain():
         mc = data[0]
         tf = mc.evalModel()
         if tf:
-            TxRx.txmsg(blk)
+            blockchain.broadcastChain()
+            #TxRx.txmsg(blk)
         #blk['data'].evalModel()
         #print(blk['data'])
         print(data[0].modelParams)
