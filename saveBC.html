@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Choose location and name for saving state of blockchain {% endblock %}</h1>
+    <form method="post">
+        <label for="path">Path</label>
+        <br>
+        <input type="text" name="path"
+               placeholder="Save Location"
+               value="{{ request.form['path'] }}"></input>
+        <br>
+
+        <label for="name">Give a name to your local copy of the blockchain</label>
+        <br>
+        <textarea name="name"
+                  placeholder="blockchain"
+                  rows="15"
+                  cols="60"
+                  >{{ request.form['name'] }}</textarea>
+        <br>
+        <button type="submit">Save</button>
+    </form>
+{% endblock %}
