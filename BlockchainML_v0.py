@@ -304,6 +304,16 @@ def model_specs(mfw, layers, weights, params):
     activations = params['ACT']
     biases = params['BL']
     
+@app.route('/save_chain', methods=('GET', 'POST'))
+def save_chain():
+    if request.method == 'POST':
+        name = request.form['name']
+        path = request.form['path']
+        blockchain.save(path, name)
+        #print(content)
+    return render_template('saveBC.html')
+   
+   
 # Display blockchain in JSON format
 @app.route('/get_chain', methods=('GET', 'POST'))
 def display_chain():
