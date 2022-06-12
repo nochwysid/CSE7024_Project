@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Last Updated : 19 Feb, 2022
+Last Updated : 12 Jun, 2022
 
 @author: Abhishek Tiwari, Simran Arora, Nikunj, Punam
 https://www.geeksforgeeks.org/create-simple-blockchain-using-python/
