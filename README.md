@@ -10,5 +10,6 @@ The most challengeing part of the implementation is figuring out how to evaluate
 - [x] compare to existing best model  
 - [x] sign model    
 - [x] implement broadcasting and beaconing  
+- [x] add methods to save/load blockchain to/from nonvolatile storage
 - [ ] develop means to check acceptance level to determine whether or not block gets added to chain  
 - [ ] implement means to check if model is compatible with device  
